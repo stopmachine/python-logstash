@@ -1,6 +1,7 @@
 from logging import Handler
 import socket
 from logstash import formatter
+from time import time
 
 
 # Derive from object to force a new-style class and thus allow super() to work
@@ -22,9 +23,21 @@ class UnixLogstashHandler(Handler, object):
         self.sock.settimeout(2)
         self.sock.connect(socket_name)
 
+        self.bytes_written = 0
+        self.measure_started_at = time()
+        self.bytes_per_sec = 0
+
     def emit(self, record):
         """
         Emit a record.
         """
-        formatted_record = self.formatter.format(record)
-        self.sock.sendall(formatted_record + b'\n')
+        formatted_record = self.formatter.format(record) + b'\n'
+        self.bytes_written += len(formatted_record)
+
+        if time() - self.measure_started_at >= 1:
+            self.bytes_per_sec = (time() - self.measure_started_at) / (time() - self.measure_started_at)
+
+        self.sock.sendall(formatted_record)
+
+    def get_last_speed(self):
+        return self.bytes_per_sec
