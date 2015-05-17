@@ -23,9 +23,9 @@ class UnixLogstashHandler(Handler, object):
         self.sock.settimeout(2)
         self.sock.connect(socket_name)
 
+        self.bytes_per_sec = 0
         self.bytes_written = 0
         self.measure_started_at = time()
-        self.bytes_per_sec = 0
 
     def emit(self, record):
         """
@@ -35,7 +35,9 @@ class UnixLogstashHandler(Handler, object):
         self.bytes_written += len(formatted_record)
 
         if time() - self.measure_started_at >= 1:
-            self.bytes_per_sec = 1. * (time() - self.measure_started_at) / (time() - self.measure_started_at)
+            self.bytes_per_sec = 1. * self.bytes_written / (time() - self.measure_started_at)
+            self.bytes_written = 0
+            self.measure_started_at = time()
 
         self.sock.sendall(formatted_record)
 
