@@ -40,6 +40,6 @@ class UnixLogstashHandler(Handler, object):
             self.bytes_per_sec = 1. * self.bytes_written / (time() - self.measure_started_at)
             self.bytes_written = 0
             self.measure_started_at = time()
-            self.metric_output.write('Reading at %.3f' % self.bytes_per_sec)
+            self.metric_output.write('Reading at %.3f bytes/s\n' % self.bytes_per_sec)
 
         self.sock.sendall(formatted_record)
