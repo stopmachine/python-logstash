@@ -11,7 +11,7 @@ class UnixLogstashHandler(Handler, object):
     :param socket_name: The name of the unix socket to use.
     """
 
-    def __init__(self, socket_name, speed_logger, formatter_class=formatter.MiniLogstashFormatter, **kwargs):
+    def __init__(self, socket_name, formatter_class=formatter.MiniLogstashFormatter, **kwargs):
         """
         Initialize a handler.
         """
@@ -27,7 +27,7 @@ class UnixLogstashHandler(Handler, object):
         self.bytes_written = 0
         self.measure_started_at = time()
 
-        self.speed_logger = speed_logger
+        self.metric_output = open('/tmp/UnixLogstashHandler_speed.log', 'wb')
 
     def emit(self, record):
         """
@@ -40,6 +40,6 @@ class UnixLogstashHandler(Handler, object):
             self.bytes_per_sec = 1. * self.bytes_written / (time() - self.measure_started_at)
             self.bytes_written = 0
             self.measure_started_at = time()
-            self.speed_logger.debug('Reading at %.3f' % self.bytes_per_sec)
+            self.metric_output.write('Reading at %.3f' % self.bytes_per_sec)
 
         self.sock.sendall(formatted_record)
