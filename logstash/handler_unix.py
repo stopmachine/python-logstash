@@ -35,7 +35,7 @@ class UnixLogstashHandler(Handler, object):
         self.bytes_written += len(formatted_record)
 
         if time() - self.measure_started_at >= 1:
-            self.bytes_per_sec = (time() - self.measure_started_at) / (time() - self.measure_started_at)
+            self.bytes_per_sec = 1. * (time() - self.measure_started_at) / (time() - self.measure_started_at)
 
         self.sock.sendall(formatted_record)
 
